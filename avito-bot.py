@@ -4,8 +4,6 @@ from bs4 import BeautifulSoup
 html = ''
 query = ''
 
-list_data = list()
-
 def get_items(html):
     soup = BeautifulSoup(html, 'html.parser')
     after_ads = soup.find_all('div', {'class': 'js-catalog_after-ads'})
