@@ -1,46 +1,51 @@
 import sys, requests
 from bs4 import BeautifulSoup
 
-html = ''
+url = ''
 query = ''
+old_list = {}
 
-def get_items(html):
-    soup = BeautifulSoup(html, 'html.parser')
+def get_items(url):
+    soup = BeautifulSoup(requests.get(url).text, 'html.parser')
     after_ads = soup.find_all('div', {'class': 'js-catalog_after-ads'})
     return after_ads[0].find_all('div', {'class': 'description'})
 
-def create_dict(items):
+def get_list():
+    global query
     items_dict = {}
+    query = query.upper()
+    items = get_items(url)
     for item in items:
-        title = item.find('a').get_text().capitalize()
-        if title.find(query.capitalize()):
+        title = item.find('a').get_text().upper()
+        if title.find(query) != -1:
             items_dict[item.find('a').get('href')] = item
     return items_dict
 
+def check_lists(old):
+    global old_list
+    new = get_list()
+    if old.keys() != new.keys():
+        print ('lists are not equal')
+    else:
+        print ('nothing new')
+
+
+def send_message(message):
+    print (message)
+
 def main():
-    global html
+    global url
     global query
     if len(sys.argv) >= 3:
         section = sys.argv[1]
         query = sys.argv[2]
         url = 'https://www.avito.ru/sankt-peterburg/%s?q=%s' % (section, query)
-        html = requests.get(url).text
 
 if __name__ == '__main__':
     main()
-    items = get_items(html)
-    d = create_dict(items)
-    print (d)
-    # items = BeautifulSoup(str(items), 'html.parser')
+    old_list = get_list()
 
-# >>> items[0].find('a').get('href')
-# '/sankt-peterburg/telefony/meizu_mx5_761685191'
-# >>> items[0].find('a').get_text()
-
-
-# >>> for item in items:
-# ...     text = item.find('a').get_text()
-# ...     text.capitalize()
-# ...     text = text.capitalize()
-# ...     if text.find(q.capitalize()):
-# ...             print (item)
+# Q:
+# 1. global??
+# 2. comparison of two dicts
+# 3. method overloading
