@@ -1,14 +1,14 @@
 import sys, requests
 from bs4 import BeautifulSoup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+# from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 url = ''
 query = ''
-old_list = {}
 
 class parser:
     def __init__(self, link):
         self.link = link
+        self.page = self.get_parsed_page()
 
     def get_parsed_page(self):
         soup = BeautifulSoup(requests.get(self.link).text, 'html.parser')
@@ -18,12 +18,11 @@ class parser:
 class db:
     def __init__(self, parsed_page):
         self.parsed_page = parsed_page
-        self.stored_list = {}
-        self.stored_list = self.create_item_list()
+        self.stored_list = self.create_item_list(self.parsed_page)
 
-    def create_item_list(self):
+    def create_item_list(self, parsed_page):
         item_list = {}
-        for div in self.parsed_page:
+        for div in parsed_page:
             local_item = item(div)
             item_list[local_item.dict['id']] = local_item.dict
         return item_list
@@ -60,16 +59,16 @@ def main():
         query = sys.argv[2]
         url = 'https://www.avito.ru/sankt-peterburg/%s?q=%s' % (section, query)
 
+def test_lists():
+    db.stored_list.popitem()
+    db.check_item_lists(db.create_item_list(parser(url).page))
+
 if __name__ == '__main__':
     main()
-    parsed_object = parser(url)
-    parsed_object = parsed_object.get_parsed_page()
-    db = db(parsed_object)
-    old_list = db.create_item_list()
+    db = db(parser(url).page)
+    db.check_item_lists(db.create_item_list(parser(url).page))
 
-    #test 
-    db.stored_list.popitem()
-    new_list = db.create_item_list()
+    
 
 # example: https://habrahabr.ru/post/302688/
 
