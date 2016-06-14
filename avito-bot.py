@@ -45,8 +45,10 @@ class item:
         self.dict['description'] = div.find_all('p')
 
 class bot:
-    def __init__(self):
-        print ('Hello')
+    def __init__(self, token):
+        self.token = token
+        self.bot_api_url = 'https://api.telegram.org/bot%s' % token
+        # print ('Hello')
 
     def send_a_message(self, message):
         print (message)
