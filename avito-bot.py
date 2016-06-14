@@ -24,11 +24,13 @@ class db:
         item_list = {}
         for div in parsed_page:
             local_item = item(div)
-            item_list[local_item.dict['id']] = local_item.dict
+            item_list[local_item.get_id()] = local_item.dict
+            # item_list[get_id(local_item.dict['link'].split('/'))] = local_item.dict
         return item_list
 
     def check_item_lists(self, new_list):
-        mybot = bot()
+        token = '230407661:AAE0Zu3Qt9yd5Zu6UsoholQ2HEcaAmuNweg'
+        mybot = bot(token)
         if self.stored_list.keys() != new_list.keys():
             for key in new_list.keys():
                 if key not in self.stored_list.keys():
@@ -39,19 +41,25 @@ class item:
     def __init__(self, div):
         self.dict = {}
         self.div = div
-        self.dict['id'] = div.find('a').get('href')
+        self.dict['link'] = div.find('a').get('href')
         self.dict['title'] = div.find('a').get_text()
         self.dict['price'] = div.find('div').get_text()
         self.dict['description'] = div.find_all('p')
+    def get_id(self):
+        get_last = lambda x: x[len(x) - 1]
+        parse = get_last(self.dict['link'].split('/'))
+        return get_last(parse.split('_'))
 
 class bot:
     def __init__(self, token):
         self.token = token
-        self.bot_api_url = 'https://api.telegram.org/bot%s' % token
+        self.api_url = 'https://api.telegram.org/bot%s/' % token
+        self.chat_id = 94925736
         # print ('Hello')
 
     def send_a_message(self, message):
-        print (message)
+        r = requests.post(self.api_url + 'sendMessage', data={'text': 'https://www.avito.ru' + message['link'], 'chat_id': self.chat_id})
+        print ('message: ', message, 'response: ', r.text)
 
 def main():
     global url
@@ -69,7 +77,6 @@ if __name__ == '__main__':
     main()
     db = db(parser(url).page)
     db.check_item_lists(db.create_item_list(parser(url).page))
-
     
 
 # example: https://habrahabr.ru/post/302688/
