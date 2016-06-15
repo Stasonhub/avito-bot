@@ -23,17 +23,17 @@ class db:
         item_list = {}
         for div in parsed_page:
             local_item = item(div)
+            # x = local_item.dict['link'].split('_')
+            # item_list[lambda x: len(x) - 1] = local_item.dict
             item_list[local_item.get_id()] = local_item.dict
         return item_list
 
     def check_item_lists(self, new_list):
-        # token = config.token
-        mybot = bot()
         if self.stored_list.keys() != new_list.keys():
             for key in new_list.keys():
                 if key not in self.stored_list.keys():
                     self.stored_list = new_list
-                    return mybot.send_a_message(new_list[key])
+                    return bot().send_a_message(new_list[key])
 
 class item:
     def __init__(self, div):
@@ -43,11 +43,14 @@ class item:
         self.dict['title'] = div.find('a').get_text()
         self.dict['price'] = div.find('div').get_text()
         self.dict['description'] = div.find_all('p')
+        # return self.dict
 
     def get_id(self):
         get_last = lambda x: x[len(x) - 1]
-        splitted_link = get_last(self.dict['link'].split('/'))
-        return get_last(splitted_link.split('_'))
+        return get_last(self.dict['link'].split('_'))
+        # x = self.dict['link'].split('_')
+        # print (x)
+        # return lambda x:[len(x) - 1]
 
 class bot:
     def __init__(self):
